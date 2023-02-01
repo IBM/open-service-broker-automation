@@ -1,0 +1,11 @@
+{
+	"langs_supported": {
+		"1": "spring",
+		"2": "python-flask",
+		"3": "scala-akka-http-server",
+		"4": "nodejs-server",
+		"5": "go-server",
+		"6": "slim"
+	}
+	
+}

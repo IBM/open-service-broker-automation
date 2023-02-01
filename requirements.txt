@@ -1,0 +1,2 @@
+GitPython==3.1.29
+python-dotenv==0.19.2
