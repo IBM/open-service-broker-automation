@@ -114,6 +114,9 @@ def createGitRepo():
 def generateProjectCode(srcCodeLanguage):
     logging.info("Generating the source code for {} using the swagger code-generator".format(srcCodeLanguage))
 
+    if os.path.exists(git_repo_id):
+        os.system("rm -rf " + git_repo_id)
+
     os.mkdir(git_repo_id)
     swaggerCodegenImage, openapiYamlPath = getSwaggerImageandyaml(args.srcCodeLanguage)
 

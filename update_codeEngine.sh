@@ -15,6 +15,7 @@
 
 Time=`date "+%D %T"`
 echo -e "Update code Engine and deployment script started at $Time \n"
+set -x 
 
 while [[ $# -gt 0 ]]
   do

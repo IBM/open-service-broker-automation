@@ -17,6 +17,7 @@
 
 Time=`date "+%D %T"`
 echo -e "Create code Engine and deployment script started at $Time \n"
+set -x
 
 while [[ $# -gt 0 ]]
   do
@@ -76,6 +77,16 @@ else
     ibmcloud ce project select -n $ce_project_name
 fi
 
+for ((n=1;n<=10;n++))
+    do
+        ibmcloud ce project select -n $ce_project_name
+        if [ $? -eq 0 ]
+            then
+            break
+        fi
+        echo "##### Failed to select the project, Retrying $n attempt  #####"
+        sleep 30
+    done
 
 
 # Application port is running on 3000, hence passed listening port number
