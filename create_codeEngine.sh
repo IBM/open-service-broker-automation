@@ -69,12 +69,9 @@ ibmcloud login -a https://cloud.ibm.com -r "$region" --apikey "$apikey" -g "$res
 echo "########## Creating Code Engine project, application build and deployment to IBM Cloud #############"
 
 ibmcloud ce project list | grep -i $ce_project_name
-if [ $? -eq 0 ]
+if [ $? -ne 0 ]
 then
-    ibmcloud ce project select -n $ce_project_name
-else
     ibmcloud ce project create --name $ce_project_name
-    ibmcloud ce project select -n $ce_project_name
 fi
 
 for ((n=1;n<=10;n++))
