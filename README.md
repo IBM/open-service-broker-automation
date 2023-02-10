@@ -72,7 +72,7 @@ INFO: Generating the source code for go-server using the swagger code-generator 
 
 The output of this script is an URL for the service broker, along with the CodeEngine URL. If the URL gets loaded successfully in a browser window, it implies that the service broker is generated successfully.
 
-https://test-go-server-app.vyy1fq8t3fh.us-south.codeengine.appdomain.cloud - Sample URL for the service broker.
+https://osb-go-server-app.yoa0uliv52z.us-south.codeengine.appdomain.cloud - Sample URL for the service broker.
 
 https://github.com/OSB-Hackathon/osb-go-server-server.git - Sample URL for the Gitrepo, where the code is pushed to.
 
