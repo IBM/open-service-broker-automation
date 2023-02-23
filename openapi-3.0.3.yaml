@@ -115,10 +115,6 @@ paths:
           description: Forbidden
         "404":
           description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
       security:
         - basicAuth: []
       x-swagger-router-controller: ServiceInstances
@@ -182,38 +178,22 @@ paths:
                 $ref: "#/components/schemas/ServiceInstanceProvisionResponse"
         "202":
           description: Accepted
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ServiceInstanceAsyncOperation"
+
         "400":
           description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "401":
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "403":
           description: Forbidden
         "404":
           description: Not Found
         "409":
           description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "422":
           description: Unprocessable Entity
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
       security:
         - basicAuth: []
       x-swagger-router-controller: ServiceInstances
@@ -283,38 +263,23 @@ paths:
                 x-content-type: application/json
         "202":
           description: Accepted
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AsyncOperation"
+
         "204":
           description: No Content
         "400":
           description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "401":
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "403":
           description: Forbidden
         "410":
           description: Gone
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "422":
           description: Unprocessable Entity
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
       security:
         - basicAuth: []
       x-swagger-router-controller: ServiceInstances
@@ -373,32 +338,20 @@ paths:
                 x-content-type: application/json
         "202":
           description: Accepted
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ServiceInstanceAsyncOperation"
+
         "204":
           description: No Content
         "400":
           description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "401":
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "403":
           description: Forbidden
         "422":
           description: Unprocessable entity
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
       security:
         - basicAuth: []
       x-swagger-router-controller: ServiceInstances
@@ -460,30 +413,18 @@ paths:
                 $ref: "#/components/schemas/LastOperationResource"
         "400":
           description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "401":
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "403":
           description: Forbidden
         "404":
           description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "410":
           description: Gone
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
       security:
         - basicAuth: []
       x-swagger-router-controller: ServiceInstances
@@ -557,10 +498,7 @@ paths:
           description: Forbidden
         "404":
           description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
       security:
         - basicAuth: []
       x-swagger-router-controller: ServiceBindings
@@ -632,38 +570,23 @@ paths:
                 $ref: "#/components/schemas/ServiceBindingResponse"
         "202":
           description: Accepted
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AsyncOperation"
+
         "400":
           description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "401":
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "403":
           description: Forbidden
         "404":
           description: Not Found
         "409":
           description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "422":
           description: Unprocessable Entity
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
       security:
         - basicAuth: []
       x-swagger-router-controller: ServiceBindings
@@ -745,38 +668,23 @@ paths:
                 x-content-type: application/json
         "202":
           description: Accepted
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AsyncOperation"
+
         "204":
           description: No Content
         "400":
           description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "401":
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "403":
           description: Forbidden
         "410":
           description: Gone
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "422":
           description: Unprocessable Entity
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
       security:
         - basicAuth: []
       x-swagger-router-controller: ServiceBindings
@@ -848,30 +756,16 @@ paths:
                 $ref: "#/components/schemas/LastOperationResource"
         "400":
           description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "401":
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
         "403":
           description: Forbidden
         "404":
           description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "410":
           description: Gone
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
       security:
         - basicAuth: []
       x-swagger-router-controller: ServiceBindings
