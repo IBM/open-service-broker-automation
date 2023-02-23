@@ -66,7 +66,16 @@ ibmcloud login -a https://cloud.ibm.com -r "$region" --apikey "$apikey" -g "$res
 
 echo "########## Selecting Code Engine project, Updating the application revision, build and deployment to IBM Cloud #############"
 
-ibmcloud ce project select -n $ce_project_name
+for ((n=1;n<=10;n++))
+    do
+        ibmcloud ce project select -n $ce_project_name
+        if [ $? -eq 0 ]
+            then
+              break
+        fi
+        echo "##### Failed to select the project, Retrying $n attempt  #####"
+        sleep 30
+    done
 
 # Application port is running on 3000, hence passed listening port number
 result=$(ibmcloud ce  app update --name osb-$lang-app --build-source $git_url --build-strategy dockerfile  --cpu 1 --memory 4G --ephemeral-storage 0.4G --min-scale 1 --port $port_num 2>&1)
