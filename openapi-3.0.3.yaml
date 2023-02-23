@@ -185,7 +185,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./Error-ModelName{namespace='io.swagger.model', name='ServiceInstanceAsyncOperation'}"
+                $ref: "#/components/schemas/ServiceInstanceAsyncOperation"
         "400":
           description: Bad Request
           content:
@@ -286,7 +286,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./Error-ModelName{namespace='io.swagger.model', name='AsyncOperation'}"
+                $ref: "#/components/schemas/AsyncOperation"
         "204":
           description: No Content
         "400":
@@ -376,7 +376,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./Error-ModelName{namespace='io.swagger.model', name='ServiceInstanceAsyncOperation'}"
+                $ref: "#/components/schemas/ServiceInstanceAsyncOperation"
         "204":
           description: No Content
         "400":
@@ -635,7 +635,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./Error-ModelName{namespace='io.swagger.model', name='AsyncOperation'}"
+                $ref: "#/components/schemas/AsyncOperation"
         "400":
           description: Bad Request
           content:
@@ -748,7 +748,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./Error-ModelName{namespace='io.swagger.model', name='AsyncOperation'}"
+                $ref: "#/components/schemas/AsyncOperation"
         "204":
           description: No Content
         "400":
