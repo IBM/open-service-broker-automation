@@ -1,7 +1,7 @@
 ###############################################################
 # Name : project-setup.py
 #
-# Project : Accelerating partner service onboarding (Hackathon)
+# Project : Accelerating partner service onboarding
 #           
 # Maintainer : Meetali Solanki, Ankitha 
 #
@@ -54,13 +54,13 @@ def initGlobalVariables(srcCodeLanguage):
 def getSwaggerImageandyaml(srcCodeLanguage):
 
     swaggerCodegenImage="swaggerapi/swagger-codegen-cli"
-    openapiYamlPath="https://raw.githubusercontent.com/openservicebrokerapi/servicebroker/master/swagger.yaml"
+    openapiYamlPath="https://raw.githubusercontent.com/IBM/open-service-broker-automation/main/swagger-2.0.yaml"
     
     logging.info("Choose the swagger codegen image based for " + srcCodeLanguage)
 
     if (srcCodeLanguage == "nodejs-server" or  srcCodeLanguage == "go-server") :
         swaggerCodegenImage="swaggerapi/swagger-codegen-cli-v3"
-        openapiYamlPath="https://raw.githubusercontent.com/openservicebrokerapi/servicebroker/master/openapi.yaml"
+        openapiYamlPath="https://raw.githubusercontent.com/IBM/open-service-broker-automation/main/openapi-3.0.3.yaml"
         #os.path.join(os.getcwd(), "/openapi-3.0.3.yaml")
     
     logging.info("Image being used for is : " + swaggerCodegenImage)

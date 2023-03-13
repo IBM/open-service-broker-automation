@@ -13,7 +13,7 @@
 #          0 : Successful run 
 ###############################################################################
 
-#time ./create_codeEngine.sh --region us-south --apikey <API_KEY> --resource_group osb-hackathon --lang spring --git_url https://github.com/OSB-Hackathon/osb-spring-1.git --port_num 3000
+#time ./create_codeEngine.sh --region us-south --apikey <API_KEY> --resource_group osb-onboarding --lang spring --git_url https://github.com/OSB-Onboarding/osb-spring-1.git --port_num 3000
 
 Time=`date "+%D %T"`
 echo -e "Create code Engine and deployment script started at $Time \n"
@@ -95,9 +95,9 @@ then
     echo $result
 fi
 exit $exit_code
-#ibmcloud ce  app create --name nodejs-server-test4 --build-source https://github.com/OSB-Hackathon/osb-nodejs-server.git --build-strategy dockerfile  --cpu 1 --memory 4G --ephemeral-storage 0.4G --min-scale 1 --port 3000
+#ibmcloud ce  app create --name nodejs-server-test4 --build-source https://github.com/OSB-Onboarding/osb-nodejs-server.git --build-strategy dockerfile  --cpu 1 --memory 4G --ephemeral-storage 0.4G --min-scale 1 --port 3000
 
-#ibmcloud ce  app create --name php-slim-server-test4 --build-source https://github.com/OSB-Hackathon/osb-php-slim-server-1.git --build-strategy dockerfile  --cpu 1 --memory 4G --ephemeral-storage 0.4G --min-scale 1 --port 80
+#ibmcloud ce  app create --name php-slim-server-test4 --build-source https://github.com/OSB-Onboarding/osb-php-slim-server-1.git --build-strategy dockerfile  --cpu 1 --memory 4G --ephemeral-storage 0.4G --min-scale 1 --port 80
  
 
 #--build-dockerfile Dockerfile

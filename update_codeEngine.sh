@@ -86,9 +86,9 @@ then
     echo $result
 fi
 exit $exit_code
-#ibmcloud ce  app create --name nodejs-server-test4 --build-source https://github.com/OSB-Hackathon/osb-nodejs-server.git --build-strategy dockerfile  --cpu 1 --memory 4G --ephemeral-storage 0.4G --min-scale 1 --port 3000
+#ibmcloud ce  app create --name nodejs-server-test4 --build-source https://github.com/OSB-Onboarding/osb-nodejs-server.git --build-strategy dockerfile  --cpu 1 --memory 4G --ephemeral-storage 0.4G --min-scale 1 --port 3000
 
-#ibmcloud ce  app create --name php-slim-server-test4 --build-source https://github.com/OSB-Hackathon/osb-php-slim-server-1.git --build-strategy dockerfile  --cpu 1 --memory 4G --ephemeral-storage 0.4G --min-scale 1 --port 80
+#ibmcloud ce  app create --name php-slim-server-test4 --build-source https://github.com/OSB-Onboarding/osb-php-slim-server-1.git --build-strategy dockerfile  --cpu 1 --memory 4G --ephemeral-storage 0.4G --min-scale 1 --port 80
  
 
 #--build-dockerfile Dockerfile
