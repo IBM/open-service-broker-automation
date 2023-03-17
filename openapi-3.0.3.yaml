@@ -1,39 +1,42 @@
-# This is the Open API interface for Open Service Broker API. Every attempt will
-# be made to make the Open API version of OSB API accurately represent the
-# written specification. If the spec and this document conflict, the spec is
-# the authority.
-
-openapi: "3.1.0"
-tags:
-  - name: Open Service Broker API Specification
-
+openapi: 3.0.3
 info:
   title: Open Service Broker API
-  description: The Open Service Broker API defines an HTTP(S) interface between Platforms and Service Brokers.
+  description:
+    The Open Service Broker API defines an HTTP(S) interface between Platforms
+    and Service Brokers.
+  termsOfService: https://www.openservicebrokerapi.org/
+  contact:
+    email: open-service-broker-api@googlegroups.com
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  contact:
-    name: Open Service Broker API
-    url: https://www.openservicebrokerapi.org/
-    email: open-service-broker-api@googlegroups.com
   version: master - might contain changes that are not yet released
-
 servers:
   - url: http://example.com
     description: Broker Endpoint
   - url: http://localhost:3000
     description: OSB Checker - MockOSB
-
+tags:
+  - name: v-2-api-controller
+    description: V 2 Api Controller
 paths:
   /v2/catalog:
     get:
-      summary: get the catalog of services that the service broker offers
       tags:
         - Catalog
-      operationId: catalog.get
+      summary: get the catalog of services that the service broker offers
+      operationId: catalogGetUsingGET
       parameters:
-        - $ref: "#/components/parameters/APIVersion"
+        - name: X-Broker-API-Version
+          in: header
+          description:
+            version number of the Service Broker API that the Platform will
+            use
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
       responses:
         "200":
           description: catalog response
@@ -41,24 +44,125 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Catalog"
-
-  /v2/service_instances/**:
-    put:
-      summary: provision a service instance
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+      security:
+        - basicAuth: []
+      x-swagger-router-controller: Catalog
+  /v2/service_instances/{instance_id}:
+    get:
       tags:
         - ServiceInstances
-      operationId: serviceInstance.provision
+      summary: get a service instance
+      operationId: serviceInstanceGetUsingGET
       parameters:
-        - $ref: "#/components/parameters/APIVersion"
-        - $ref: "#/components/parameters/OriginatingIdentity"
+        - name: X-Broker-API-Version
+          in: header
+          description:
+            version number of the Service Broker API that the Platform will
+            use
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: instance_id
+          in: path
+          description: instance id of instance to fetch
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: X-Broker-API-Originating-Identity
+          in: header
+          description: identity of the user that initiated the request from the Platform
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: service_id
+          in: query
+          description: id of the service associated with the instance
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: plan_id
+          in: query
+          description: id of the plan associated with the instance
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceInstanceResource"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - basicAuth: []
+      x-swagger-router-controller: ServiceInstances
+    put:
+      tags:
+        - ServiceInstances
+      summary: provision a service instance
+      operationId: serviceInstanceProvisionUsingPUT
+      parameters:
+        - name: X-Broker-API-Version
+          in: header
+          description:
+            version number of the Service Broker API that the Platform will
+            use
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: instance_id
+          in: path
+          description: instance id of instance to provision
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: X-Broker-API-Originating-Identity
+          in: header
+          description: identity of the user that initiated the request from the Platform
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: string
         - name: accepts_incomplete
           in: query
           description: asynchronous operations supported
+          required: false
+          style: form
+          explode: true
           schema:
             type: boolean
       requestBody:
-        description: parameters for the requested service instance provision
-        required: true
         content:
           application/json:
             schema:
@@ -94,6 +198,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
         "409":
           description: Conflict
           content:
@@ -106,80 +214,63 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    patch:
-      summary: update a service instance
-      tags:
-        - ServiceInstances
-      operationId: serviceInstance.update
-      parameters:
-        - $ref: "#/components/parameters/APIVersion"
-        - $ref: "#/components/parameters/OriginatingIdentity"
-        - name: accepts_incomplete
-          in: query
-          description: asynchronous operations supported
-          schema:
-            type: boolean
-      requestBody:
-        description: parameters for the requested service instance update
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ServiceInstanceUpdateRequestBody"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Object"
-        "202":
-          description: Accepted
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ServiceInstanceAsyncOperation"
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "422":
-          description: Unprocessable entity
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+      security:
+        - basicAuth: []
+      x-swagger-router-controller: ServiceInstances
     delete:
-      summary: deprovision a service instance
       tags:
         - ServiceInstances
-      operationId: serviceInstance.deprovision
+      summary: deprovision a service instance
+      operationId: serviceInstanceDeprovisionUsingDELETE
       parameters:
-        - $ref: "#/components/parameters/APIVersion"
-        - $ref: "#/components/parameters/OriginatingIdentity"
+        - name: X-Broker-API-Version
+          in: header
+          description:
+            version number of the Service Broker API that the Platform will
+            use
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: instance_id
+          in: path
+          description: id of instance being deleted
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
         - name: service_id
           in: query
           description: id of the service associated with the instance being deleted
           required: true
+          style: form
+          explode: true
           schema:
             type: string
         - name: plan_id
           in: query
           description: id of the plan associated with the instance being deleted
           required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: X-Broker-API-Originating-Identity
+          in: header
+          description: identity of the user that initiated the request from the Platform
+          required: false
+          style: simple
+          explode: false
           schema:
             type: string
         - name: accepts_incomplete
           in: query
           description: asynchronous deprovision supported
+          required: false
+          style: form
+          explode: true
           schema:
             type: boolean
       responses:
@@ -188,13 +279,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Object"
+                type: object
+                x-content-type: application/json
         "202":
           description: Accepted
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/AsyncOperation"
+        "204":
+          description: No Content
         "400":
           description: Bad Request
           content:
@@ -207,6 +301,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
         "410":
           description: Gone
           content:
@@ -219,189 +315,304 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    get:
-      summary: get a service instance
+      security:
+        - basicAuth: []
+      x-swagger-router-controller: ServiceInstances
+    patch:
       tags:
         - ServiceInstances
-      operationId: serviceInstance.get
+      summary: update a service instance
+      operationId: serviceInstanceUpdateUsingPATCH
       parameters:
-        - $ref: "#/components/parameters/APIVersion"
-        - $ref: "#/components/parameters/OriginatingIdentity"
-        - name: service_id
-          in: query
-          description: id of the service associated with the instance
-          schema:
-            type: string
-        - name: plan_id
-          in: query
-          description: id of the plan associated with the instance
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ServiceInstanceResource"
-        "404":
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /v2/service_instances/**/last_operation:
-    get:
-      summary: get the last requested operation state for service instance
-      tags:
-        - ServiceInstances
-      operationId: serviceInstance.lastOperation.get
-      parameters:
-        - $ref: "#/components/parameters/APIVersion"
-        - name: service_id
-          in: query
-          description: id of the service associated with the instance
-          schema:
-            type: string
-        - name: plan_id
-          in: query
-          description: id of the plan associated with the instance
-          schema:
-            type: string
-        - name: operation
-          in: query
-          description: a provided identifier for the operation
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LastOperationResource"
-          headers:
-            Retry-After:
-              description: Indicates when to retry the request
-              required: false
-              schema:
-                type: string
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "404":
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "410":
-          description: Gone
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /v2/service_instances/**/service_bindings/{binding_id}/last_operation:
-    get:
-      summary: get the last requested operation state for service binding
-      tags:
-        - ServiceBindings
-      operationId: serviceBinding.lastOperation.get
-      parameters:
-        - $ref: "#/components/parameters/APIVersion"
-        - name: binding_id
-          in: path
-          description: binding id of service binding to find last operation applied to it
+        - name: X-Broker-API-Version
+          in: header
+          description:
+            version number of the Service Broker API that the Platform will
+            use
           required: true
+          style: simple
+          explode: false
           schema:
             type: string
-        - name: service_id
-          in: query
-          description: id of the service associated with the instance
-          schema:
-            type: string
-        - name: plan_id
-          in: query
-          description: id of the plan associated with the instance
-          schema:
-            type: string
-        - name: operation
-          in: query
-          description: a provided identifier for the operation
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LastOperationResource"
-          headers:
-            Retry-After:
-              description: Indicates when to retry the request
-              required: false
-              schema:
-                type: string
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "404":
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "410":
-          description: Gone
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-  /v2/service_instances/**/service_bindings/{binding_id}:
-    put:
-      summary: generate a service binding
-      tags:
-        - ServiceBindings
-      operationId: serviceBinding.binding
-      parameters:
-        - $ref: "#/components/parameters/APIVersion"
-        - $ref: "#/components/parameters/OriginatingIdentity"
-        - name: binding_id
+        - name: instance_id
           in: path
-          description: binding id of binding to create
+          description: instance id of instance to update
           required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: X-Broker-API-Originating-Identity
+          in: header
+          description: identity of the user that initiated the request from the Platform
+          required: false
+          style: simple
+          explode: false
           schema:
             type: string
         - name: accepts_incomplete
           in: query
           description: asynchronous operations supported
+          required: false
+          style: form
+          explode: true
           schema:
             type: boolean
       requestBody:
-        description: parameters for the requested service binding
-        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInstanceUpdateRequestBody"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-content-type: application/json
+        "202":
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceInstanceAsyncOperation"
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+        "422":
+          description: Unprocessable entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - basicAuth: []
+      x-swagger-router-controller: ServiceInstances
+  /v2/service_instances/{instance_id}/last_operation:
+    get:
+      tags:
+        - ServiceInstances
+      summary: get the last requested operation state for service instance
+      operationId: serviceInstanceLastOperationGetUsingGET
+      parameters:
+        - name: X-Broker-API-Version
+          in: header
+          description:
+            version number of the Service Broker API that the Platform will
+            use
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: instance_id
+          in: path
+          description: instance id of instance to find last operation applied to it
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: service_id
+          in: query
+          description: id of the service associated with the instance
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: plan_id
+          in: query
+          description: id of the plan associated with the instance
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: operation
+          in: query
+          description: a provided identifier for the operation
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LastOperationResource"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "410":
+          description: Gone
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - basicAuth: []
+      x-swagger-router-controller: ServiceInstances
+  /v2/service_instances/{instance_id}/service_bindings/{binding_id}:
+    get:
+      tags:
+        - ServiceBindings
+      summary: get a service binding
+      operationId: serviceBindingGetUsingGET
+      parameters:
+        - name: X-Broker-API-Version
+          in: header
+          description:
+            version number of the Service Broker API that the Platform will
+            use
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: instance_id
+          in: path
+          description: instance id of instance associated with the binding
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: binding_id
+          in: path
+          description: binding id of binding to fetch
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: X-Broker-API-Originating-Identity
+          in: header
+          description: identity of the user that initiated the request from the Platform
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: service_id
+          in: query
+          description: id of the service associated with the instance
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: plan_id
+          in: query
+          description: id of the plan associated with the instance
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceBindingResource"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - basicAuth: []
+      x-swagger-router-controller: ServiceBindings
+    put:
+      tags:
+        - ServiceBindings
+      summary: generate a service binding
+      operationId: serviceBindingBindingUsingPUT
+      parameters:
+        - name: X-Broker-API-Version
+          in: header
+          description:
+            version number of the Service Broker API that the Platform will
+            use
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: instance_id
+          in: path
+          description: instance id of instance to create a binding on
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: binding_id
+          in: path
+          description: binding id of binding to create
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: X-Broker-API-Originating-Identity
+          in: header
+          description: identity of the user that initiated the request from the Platform
+          required: false
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: accepts_incomplete
+          in: query
+          description: asynchronous operations supported
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: boolean
+      requestBody:
         content:
           application/json:
             schema:
@@ -437,6 +648,10 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
         "409":
           description: Conflict
           content:
@@ -449,35 +664,75 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+      security:
+        - basicAuth: []
+      x-swagger-router-controller: ServiceBindings
     delete:
-      summary: deprovision a service binding
       tags:
         - ServiceBindings
-      operationId: serviceBinding.unbinding
+      summary: deprovision a service binding
+      operationId: serviceBindingUnbindingUsingDELETE
       parameters:
-        - $ref: "#/components/parameters/APIVersion"
-        - $ref: "#/components/parameters/OriginatingIdentity"
+        - name: X-Broker-API-Version
+          in: header
+          description:
+            version number of the Service Broker API that the Platform will
+            use
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: instance_id
+          in: path
+          description: id of the instance associated with the binding being deleted
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
         - name: binding_id
           in: path
           description: id of the binding being deleted
           required: true
+          style: simple
+          explode: false
           schema:
             type: string
         - name: service_id
           in: query
-          description: id of the service associated with the instance for which a binding is being deleted
+          description:
+            id of the service associated with the instance for which a binding
+            is being deleted
           required: true
+          style: form
+          explode: true
           schema:
             type: string
         - name: plan_id
           in: query
-          description: id of the plan associated with the instance for which a binding is being deleted
+          description:
+            id of the plan associated with the instance for which a binding
+            is being deleted
           required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: X-Broker-API-Originating-Identity
+          in: header
+          description: identity of the user that initiated the request from the Platform
+          required: false
+          style: simple
+          explode: false
           schema:
             type: string
         - name: accepts_incomplete
           in: query
           description: asynchronous operations supported
+          required: false
+          style: form
+          explode: true
           schema:
             type: boolean
       responses:
@@ -486,13 +741,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Object"
+                type: object
+                x-content-type: application/json
         "202":
           description: Accepted
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/AsyncOperation"
+        "204":
+          description: No Content
         "400":
           description: Bad Request
           content:
@@ -505,6 +763,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
         "410":
           description: Gone
           content:
@@ -517,28 +777,66 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+      security:
+        - basicAuth: []
+      x-swagger-router-controller: ServiceBindings
+  /v2/service_instances/{instance_id}/service_bindings/{binding_id}/last_operation:
     get:
-      summary: get a service binding
       tags:
         - ServiceBindings
-      operationId: serviceBinding.get
+      summary: get the last requested operation state for service binding
+      operationId: serviceBindingLastOperationGetUsingGET
       parameters:
-        - $ref: "#/components/parameters/APIVersion"
-        - $ref: "#/components/parameters/OriginatingIdentity"
+        - name: X-Broker-API-Version
+          in: header
+          description:
+            version number of the Service Broker API that the Platform will
+            use
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: instance_id
+          in: path
+          description: instance id of instance to find last operation applied to it
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
         - name: binding_id
           in: path
-          description: binding id of binding to fetch
+          description:
+            binding id of service binding to find last operation applied
+            to it
           required: true
+          style: simple
+          explode: false
           schema:
             type: string
         - name: service_id
           in: query
           description: id of the service associated with the instance
+          required: false
+          style: form
+          explode: true
           schema:
             type: string
         - name: plan_id
           in: query
           description: id of the plan associated with the instance
+          required: false
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: operation
+          in: query
+          description: a provided identifier for the operation
+          required: false
+          style: form
+          explode: true
           schema:
             type: string
       responses:
@@ -547,347 +845,399 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ServiceBindingResource"
+                $ref: "#/components/schemas/LastOperationResource"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
         "404":
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
+        "410":
+          description: Gone
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+        - basicAuth: []
+      x-swagger-router-controller: ServiceBindings
 components:
-  parameters:
-    APIVersion:
-      name: X-Broker-API-Version
-      in: header
-      description: version number of the Service Broker API that the Platform will use
-      required: true
-      schema:
-        type: string
-        default: "2.13"
-
-    OriginatingIdentity:
-      name: X-Broker-API-Originating-Identity
-      in: header
-      description: identity of the user that initiated the request from the Platform
-      schema:
-        type: string
-
   schemas:
     Catalog:
+      title: Catalog
       type: object
       properties:
         services:
           type: array
           items:
             $ref: "#/components/schemas/Service"
-
-    Service:
+      example:
+        services:
+          - bindable: false
+            metadata: {}
+            plan_updateable: false
+            plans:
+              - bindable: false
+                metadata: null
+                maintenance_info:
+                  description: description
+                  version: version
+                plan_updateable: false
+                schemas:
+                  service_binding:
+                    create:
+                      parameters: {}
+                  service_instance:
+                    create: null
+                    update: null
+                binding_rotatable: false
+                name: name
+                description: description
+                id: id
+                free: false
+                maximum_polling_duration: 0
+              - bindable: false
+                metadata: null
+                maintenance_info:
+                  description: description
+                  version: version
+                plan_updateable: false
+                schemas:
+                  service_binding:
+                    create:
+                      parameters: {}
+                  service_instance:
+                    create: null
+                    update: null
+                binding_rotatable: false
+                name: name
+                description: description
+                id: id
+                free: false
+                maximum_polling_duration: 0
+            binding_rotatable: false
+            name: name
+            description: description
+            id: id
+            dashboard_client:
+              id: id
+              redirect_uri: redirect_uri
+              secret: secret
+            requires:
+              - route_forwarding
+              - route_forwarding
+            tags:
+              - tags
+              - tags
+          - bindable: false
+            metadata: {}
+            plan_updateable: false
+            plans:
+              - bindable: false
+                metadata: null
+                maintenance_info:
+                  description: description
+                  version: version
+                plan_updateable: false
+                schemas:
+                  service_binding:
+                    create:
+                      parameters: {}
+                  service_instance:
+                    create: null
+                    update: null
+                binding_rotatable: false
+                name: name
+                description: description
+                id: id
+                free: false
+                maximum_polling_duration: 0
+              - bindable: false
+                metadata: null
+                maintenance_info:
+                  description: description
+                  version: version
+                plan_updateable: false
+                schemas:
+                  service_binding:
+                    create:
+                      parameters: {}
+                  service_instance:
+                    create: null
+                    update: null
+                binding_rotatable: false
+                name: name
+                description: description
+                id: id
+                free: false
+                maximum_polling_duration: 0
+            binding_rotatable: false
+            name: name
+            description: description
+            id: id
+            dashboard_client:
+              id: id
+              redirect_uri: redirect_uri
+              secret: secret
+            requires:
+              - route_forwarding
+              - route_forwarding
+            tags:
+              - tags
+              - tags
+    Context:
+      title: Context
       type: object
-      required:
-        - name
-        - id
-        - description
-        - bindable
-        - plans
+    DashboardClient:
+      title: DashboardClient
+      type: object
       properties:
+        id:
+          type: string
+        redirect_uri:
+          type: string
+        secret:
+          type: string
+      example:
+        id: id
+        redirect_uri: redirect_uri
+        secret: secret
+    LastOperationResource:
+      title: LastOperationResource
+      required:
+        - state
+      type: object
+      properties:
+        description:
+          type: string
+        instance_usable:
+          type: boolean
+          example: false
+        state:
+          type: string
+          enum:
+            - failed
+            - in progress
+            - succeeded
+        update_repeatable:
+          type: boolean
+          example: false
+      example:
+        instance_usable: false
+        update_repeatable: false
+        description: description
+        state: failed
+    MaintenanceInfo:
+      title: MaintenanceInfo
+      required:
+        - version
+      type: object
+      properties:
+        description:
+          type: string
+        version:
+          type: string
+      example:
+        description: description
+        version: version
+    Metadata:
+      title: Metadata
+      type: object
+    Object:
+      title: Object
+      type: object
+    Plan:
+      title: Plan
+      required:
+        - description
+        - id
+        - name
+      type: object
+      properties:
+        bindable:
+          type: boolean
+          example: false
+        binding_rotatable:
+          type: boolean
+          example: false
+        description:
+          type: string
+        free:
+          type: boolean
+          example: false
+        id:
+          type: string
+        maintenance_info:
+          $ref: "#/components/schemas/MaintenanceInfo"
+        maximum_polling_duration:
+          type: integer
+          format: int32
+        metadata:
+          $ref: "#/components/schemas/Metadata"
         name:
+          type: string
+        plan_updateable:
+          type: boolean
+          example: false
+        schemas:
+          $ref: "#/components/schemas/Schemas"
+      example:
+        bindable: false
+        metadata: null
+        maintenance_info:
+          description: description
+          version: version
+        plan_updateable: false
+        schemas:
+          service_binding:
+            create:
+              parameters: {}
+          service_instance:
+            create: null
+            update: null
+        binding_rotatable: false
+        name: name
+        description: description
+        id: id
+        free: false
+        maximum_polling_duration: 0
+    Schemas:
+      title: Schemas
+      type: object
+      properties:
+        service_binding:
+          $ref: "#/components/schemas/ServiceBindingSchema"
+        service_instance:
+          $ref: "#/components/schemas/ServiceInstanceSchema"
+      example:
+        service_binding:
+          create:
+            parameters: {}
+        service_instance:
+          create: null
+          update: null
+    Service:
+      title: Service
+      required:
+        - bindable
+        - description
+        - id
+        - name
+        - plans
+      type: object
+      properties:
+        bindable:
+          type: boolean
+          example: false
+        binding_rotatable:
+          type: boolean
+          example: false
+        dashboard_client:
+          $ref: "#/components/schemas/DashboardClient"
+        description:
           type: string
         id:
           type: string
-        description:
+        metadata:
+          $ref: "#/components/schemas/Metadata"
+        name:
           type: string
-        tags:
+        plan_updateable:
+          type: boolean
+          example: false
+        plans:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/Plan"
         requires:
           type: array
           items:
             type: string
             enum:
-              - syslog_drain
               - route_forwarding
+              - syslog_drain
               - volume_mount
-        bindable:
-          type: boolean
-        metadata:
-          $ref: "#/components/schemas/Metadata"
-        dashboard_client:
-          $ref: "#/components/schemas/DashboardClient"
-        binding_rotatable:
-          type: boolean
-        plan_updateable:
-          type: boolean
+        tags:
+          type: array
+          items:
+            type: string
+      example:
+        bindable: false
+        metadata: {}
+        plan_updateable: false
         plans:
-          type: array
-          items:
-            $ref: "#/components/schemas/Plan"
-
-    DashboardClient:
-      type: object
-      properties:
-        id:
-          type: string
-        secret:
-          type: string
-        redirect_uri:
-          type: string
-
-    Plan:
-      type: object
-      required:
-        - id
-        - name
-        - description
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        metadata:
-          $ref: "#/components/schemas/Metadata"
-        maintenance_info:
-          $ref: "#/components/schemas/MaintenanceInfo"
-        free:
-          type: boolean
-          default: true
-        bindable:
-          type: boolean
-        schemas:
-          $ref: "#/components/schemas/Schemas"
-        maximum_polling_duration:
-          type: integer
-        plan_updateable:
-          type: boolean
-        binding_rotatable:
-          type: boolean
-          default: false
-
-    Schemas:
-      type: object
-      properties:
-        service_instance:
-          $ref: "#/components/schemas/ServiceInstanceSchema"
-        service_binding:
-          $ref: "#/components/schemas/ServiceBindingSchema"
-
-    ServiceInstanceSchema:
-      type: object
-      properties:
-        create:
-          type: object
-          properties:
-            parameters:
-              type: object
-        update:
-          type: object
-          properties:
-            parameters:
-              type: object
-
-    ServiceBindingSchema:
-      type: object
-      properties:
-        create:
-          type: object
-          properties:
-            parameters:
-              type: object
-
-    ServiceInstanceResource:
-      type: object
-      properties:
-        service_id:
-          type: string
-        plan_id:
-          type: string
-        dashboard_url:
-          type: string
-        parameters:
-          $ref: "#/components/schemas/Object"
-        maintenance_info:
-          $ref: "#/components/schemas/MaintenanceInfo"
-        metadata:
-          $ref: "#/components/schemas/ServiceInstanceMetadata"
-
-    ServiceInstanceProvisionRequestBody:
-      type: object
-      required:
-        - service_id
-        - plan_id
-      properties:
-        service_id:
-          type: string
-        plan_id:
-          type: string
-        context:
-          $ref: "#/components/schemas/Context"
-        parameters:
-          $ref: "#/components/schemas/Object"
-
-    ServiceInstanceProvisionResponse:
-      type: object
-      properties:
-        dashboard_url:
-          type: string
-        metadata:
-          $ref: "#/components/schemas/ServiceInstanceMetadata"
-
-    ServiceInstanceAsyncOperation:
-      type: object
-      properties:
-        dashboard_url:
-          type: string
-        operation:
-          type: string # could be a link object to last operation
-        metadata:
-          $ref: "#/components/schemas/ServiceInstanceMetadata"
-
-    ServiceInstanceMetadata:
-      type: object
-      properties:
-        labels:
-          type: object
-        attributes:
-          type: object
-
-    ServiceInstanceUpdateRequestBody:
-      type: object
-      required:
-        - service_id
-      properties:
-        context:
-          $ref: "#/components/schemas/Context"
-        service_id:
-          type: string
-        plan_id:
-          type: string
-        parameters:
-          $ref: "#/components/schemas/Object"
-        previous_values:
-          $ref: "#/components/schemas/ServiceInstancePreviousValues"
-
-    ServiceInstancePreviousValues:
-      type: object
-      properties:
-        service_id:
-          type: string
-          deprecated: true
-        plan_id:
-          type: string
-
-    AsyncOperation:
-      type: object
-      properties:
-        operation:
-          type: string
-
-    LastOperationResource:
-      type: object
-      required:
-        - state
-      properties:
-        state:
-          type: string
-          enum:
-            - "in progress"
-            - "succeeded"
-            - "failed"
-        description:
-          type: string
-        instance_usable:
-          type: boolean
-        update_repeatable:
-          type: boolean
-
-    ServiceBindingResource:
-      type: object
-      properties:
-        metadata:
-          $ref: "#/components/schemas/ServiceBindingMetadata"
-        credentials:
-          $ref: "#/components/schemas/Object"
-        syslog_drain_url:
-          type: string
-        route_service_url:
-          type: string
-        volume_mounts:
-          type: array
-          items:
-            $ref: "#/components/schemas/ServiceBindingVolumeMount"
-        endpoints:
-          type: array
-          items:
-            $ref: "#/components/schemas/ServiceBindingEndpoint"
-        parameters:
-          $ref: "#/components/schemas/Object"
-
-    ServiceBindingRequest:
-      type: object
-      required:
-        - service_id
-        - plan_id
-      properties:
-        context:
-          $ref: "#/components/schemas/Context"
-        service_id:
-          type: string
-        plan_id:
-          type: string
-        app_guid:
-          type: string
-          deprecated: true
-        bind_resource:
-          $ref: "#/components/schemas/ServiceBindingResouceObject"
-        parameters:
-          $ref: "#/components/schemas/Object"
-        predecessor_binding_id:
-          type: string
-
-    ServiceBindingMetadata:
-      type: object
-      properties:
-        expires_at:
-          type: string
-        renew_before:
-          type: string
-
-    ServiceBindingResouceObject:
-      type: object
-      properties:
-        app_guid:
-          type: string
-        route:
-          type: string
-
-    ServiceBindingResponse:
-      type: object
-      properties:
-        metadata:
-          $ref: "#/components/schemas/ServiceBindingMetadata"
-        credentials:
-          $ref: "#/components/schemas/Object"
-        syslog_drain_url:
-          type: string
-        route_service_url:
-          type: string
-        volume_mounts:
-          type: array
-          items:
-            $ref: "#/components/schemas/ServiceBindingVolumeMount"
-        endpoints:
-          type: array
-          items:
-            $ref: "#/components/schemas/ServiceBindingEndpoint"
-
+          - bindable: false
+            metadata: null
+            maintenance_info:
+              description: description
+              version: version
+            plan_updateable: false
+            schemas:
+              service_binding:
+                create:
+                  parameters: {}
+              service_instance:
+                create: null
+                update: null
+            binding_rotatable: false
+            name: name
+            description: description
+            id: id
+            free: false
+            maximum_polling_duration: 0
+          - bindable: false
+            metadata: null
+            maintenance_info:
+              description: description
+              version: version
+            plan_updateable: false
+            schemas:
+              service_binding:
+                create:
+                  parameters: {}
+              service_instance:
+                create: null
+                update: null
+            binding_rotatable: false
+            name: name
+            description: description
+            id: id
+            free: false
+            maximum_polling_duration: 0
+        binding_rotatable: false
+        name: name
+        description: description
+        id: id
+        dashboard_client:
+          id: id
+          redirect_uri: redirect_uri
+          secret: secret
+        requires:
+          - route_forwarding
+          - route_forwarding
+        tags:
+          - tags
+          - tags
     ServiceBindingEndpoint:
-      type: object
+      title: ServiceBindingEndpoint
       required:
         - host
         - ports
+      type: object
       properties:
         host:
           type: string
@@ -898,88 +1248,335 @@ components:
         protocol:
           type: string
           enum:
-            - "tcp"
-            - "udp"
-            - "all"
-          default: "tcp"
-
-    ServiceBindingVolumeMount:
+            - all
+            - tcp
+            - udp
+      example:
+        protocol: all
+        host: host
+        ports:
+          - ports
+          - ports
+    ServiceBindingMetadata:
+      title: ServiceBindingMetadata
       type: object
-      required:
-        - driver
-        - container_dir
-        - mode
-        - device_type
-        - device
       properties:
-        driver:
+        expires_at:
           type: string
+        renew_before:
+          type: string
+      example:
+        expires_at: expires_at
+        renew_before: renew_before
+    ServiceBindingRequest:
+      title: ServiceBindingRequest
+      required:
+        - plan_id
+        - service_id
+      type: object
+      properties:
+        app_guid:
+          type: string
+        bind_resource:
+          $ref: "#/components/schemas/ServiceBindingResouceObject"
+        context:
+          $ref: "#/components/schemas/Context"
+        parameters:
+          $ref: "#/components/schemas/Object"
+        plan_id:
+          type: string
+        predecessor_binding_id:
+          type: string
+        service_id:
+          type: string
+    ServiceBindingResouceObject:
+      title: ServiceBindingResouceObject
+      type: object
+      properties:
+        app_guid:
+          type: string
+        route:
+          type: string
+    ServiceBindingResource:
+      title: ServiceBindingResource
+      type: object
+      properties:
+        credentials:
+          $ref: "#/components/schemas/Object"
+        endpoints:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceBindingEndpoint"
+        metadata:
+          $ref: "#/components/schemas/ServiceBindingMetadata"
+        parameters:
+          $ref: "#/components/schemas/Object"
+        route_service_url:
+          type: string
+        syslog_drain_url:
+          type: string
+        volume_mounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceBindingVolumeMount"
+      example:
+        endpoints:
+          - protocol: all
+            host: host
+            ports:
+              - ports
+              - ports
+          - protocol: all
+            host: host
+            ports:
+              - ports
+              - ports
+        metadata:
+          expires_at: expires_at
+          renew_before: renew_before
+        route_service_url: route_service_url
+        credentials: {}
+        syslog_drain_url: syslog_drain_url
+        volume_mounts:
+          - mode: r
+            driver: driver
+            device_type: shared
+            device:
+              volume_id: volume_id
+              mount_config: null
+            container_dir: container_dir
+          - mode: r
+            driver: driver
+            device_type: shared
+            device:
+              volume_id: volume_id
+              mount_config: null
+            container_dir: container_dir
+        parameters: null
+    ServiceBindingResponse:
+      title: ServiceBindingResponse
+      type: object
+      properties:
+        credentials:
+          $ref: "#/components/schemas/Object"
+        endpoints:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceBindingEndpoint"
+        metadata:
+          $ref: "#/components/schemas/ServiceBindingMetadata"
+        route_service_url:
+          type: string
+        syslog_drain_url:
+          type: string
+        volume_mounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceBindingVolumeMount"
+      example:
+        endpoints:
+          - protocol: all
+            host: host
+            ports:
+              - ports
+              - ports
+          - protocol: all
+            host: host
+            ports:
+              - ports
+              - ports
+        metadata:
+          expires_at: expires_at
+          renew_before: renew_before
+        route_service_url: route_service_url
+        credentials: {}
+        syslog_drain_url: syslog_drain_url
+        volume_mounts:
+          - mode: r
+            driver: driver
+            device_type: shared
+            device:
+              volume_id: volume_id
+              mount_config: null
+            container_dir: container_dir
+          - mode: r
+            driver: driver
+            device_type: shared
+            device:
+              volume_id: volume_id
+              mount_config: null
+            container_dir: container_dir
+    ServiceBindingSchema:
+      title: ServiceBindingSchema
+      type: object
+      properties:
+        create:
+          $ref: "#/components/schemas/ServiceInstanceSchemaCreate"
+      example:
+        create:
+          parameters: {}
+    ServiceBindingVolumeMount:
+      title: ServiceBindingVolumeMount
+      required:
+        - container_dir
+        - device
+        - device_type
+        - driver
+        - mode
+      type: object
+      properties:
         container_dir:
+          type: string
+        device:
+          $ref: "#/components/schemas/ServiceBindingVolumeMountDevice"
+        device_type:
+          type: string
+          enum:
+            - shared
+        driver:
           type: string
         mode:
           type: string
           enum:
             - r
             - rw
-        device_type:
-          type: string
-          enum:
-            - shared
+      example:
+        mode: r
+        driver: driver
+        device_type: shared
         device:
-          $ref: "#/components/schemas/ServiceBindingVolumeMountDevice"
-
+          volume_id: volume_id
+          mount_config: null
+        container_dir: container_dir
     ServiceBindingVolumeMountDevice:
-      type: object
+      title: ServiceBindingVolumeMountDevice
       required:
         - volume_id
+      type: object
       properties:
-        volume_id:
-          type: string
         mount_config:
           $ref: "#/components/schemas/Object"
-
-    Context:
-      description: "See [Context Conventions](https://github.com/openservicebrokerapi/servicebroker/blob/master/profile.md#context-object) for more details."
+        volume_id:
+          type: string
+      example:
+        volume_id: volume_id
+        mount_config: null
+    ServiceInstanceMetadata:
+      title: ServiceInstanceMetadata
       type: object
-
-    Metadata:
-      description: "See [Service Metadata Conventions](https://github.com/openservicebrokerapi/servicebroker/blob/master/profile.md#service-metadata) for more details."
+      properties:
+        attributes:
+          $ref: "#/components/schemas/Object"
+        labels:
+          $ref: "#/components/schemas/Object"
+      example:
+        attributes: {}
+        labels: null
+    ServiceInstancePreviousValues:
+      title: ServiceInstancePreviousValues
       type: object
-
-    MaintenanceInfo:
-      type: object
+      properties:
+        organization_id:
+          type: string
+        plan_id:
+          type: string
+        service_id:
+          type: string
+        space_id:
+          type: string
+    ServiceInstanceProvisionRequestBody:
+      title: ServiceInstanceProvisionRequestBody
       required:
-        - version
-      properties:
-        version:
-          type: string
-        description:
-          type: string
-
-    Object:
-      type: object
-
-    Error:
-      description: "See [Service Broker Errors](https://github.com/openservicebrokerapi/servicebroker/blob/master/spec.md#service-broker-errors) for more details."
+        - organization_guid
+        - plan_id
+        - service_id
+        - space_guid
       type: object
       properties:
-        error:
+        context:
+          $ref: "#/components/schemas/Context"
+        organization_guid:
           type: string
-        description:
+        parameters:
+          $ref: "#/components/schemas/Object"
+        plan_id:
           type: string
-        instance_usable:
-          type: boolean
-        update_repeatable:
-          type: boolean
-
-  securitySchemes:
-    basicAuth:
-      type: http
-      scheme: basic
-
-security:
-  - basicAuth: []
-
-externalDocs:
-  description: The offical Open Service Broker API specification
-  url: https://github.com/openservicebrokerapi/servicebroker/
+        service_id:
+          type: string
+        space_guid:
+          type: string
+    ServiceInstanceProvisionResponse:
+      title: ServiceInstanceProvisionResponse
+      type: object
+      properties:
+        dashboard_url:
+          type: string
+        metadata:
+          $ref: "#/components/schemas/ServiceInstanceMetadata"
+      example:
+        metadata:
+          attributes: {}
+          labels: null
+        dashboard_url: dashboard_url
+    ServiceInstanceResource:
+      title: ServiceInstanceResource
+      type: object
+      properties:
+        dashboard_url:
+          type: string
+        maintenance_info:
+          $ref: "#/components/schemas/MaintenanceInfo"
+        metadata:
+          $ref: "#/components/schemas/ServiceInstanceMetadata"
+        parameters:
+          $ref: "#/components/schemas/Object"
+        plan_id:
+          type: string
+        service_id:
+          type: string
+      example:
+        metadata:
+          attributes: {}
+          labels: null
+        maintenance_info:
+          description: description
+          version: version
+        service_id: service_id
+        dashboard_url: dashboard_url
+        parameters: null
+        plan_id: plan_id
+    ServiceInstanceSchema:
+      title: ServiceInstanceSchema
+      type: object
+      properties:
+        create:
+          $ref: "#/components/schemas/ServiceInstanceSchemaCreate"
+        update:
+          $ref: "#/components/schemas/ServiceInstanceSchemaCreate"
+      example:
+        create: null
+        update: null
+    ServiceInstanceSchemaCreate:
+      title: ServiceInstanceSchemaCreate
+      type: object
+      properties:
+        parameters:
+          $ref: "#/components/schemas/Object"
+      example:
+        parameters: {}
+    ServiceInstanceUpdateRequestBody:
+      title: ServiceInstanceUpdateRequestBody
+      required:
+        - service_id
+      type: object
+      properties:
+        context:
+          $ref: "#/components/schemas/Context"
+        parameters:
+          $ref: "#/components/schemas/Object"
+        plan_id:
+          type: string
+        previous_values:
+          $ref: "#/components/schemas/ServiceInstancePreviousValues"
+        service_id:
+          type: string
