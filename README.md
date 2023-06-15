@@ -6,7 +6,48 @@ Every service onboarding in IBM Cloud Catalog requires to build a broker app tha
 
 Service brokers manage the lifecycle of services. Platforms interact with service brokers to create, get access to, and manage the services they offer. The Open Service Broker API defines these interactions to allow software providers to offer their services to anyone regardless of the technology or infrastructure those software providers choose.
 
+![service-broker-architecture-diagram](https://raw.githubusercontent.com/IBM/open-service-broker-automation/main/images/sb_architecture.png)
+
+A broker is useful if you are developing and offering software as a service across multiple vendors. It can increase business value by introducing the service broker to automate the provisioning and binding for customers. Additionally, customer management and usage tracking can be easier with a middleware component that handles these cross cutting concerns.
+
+The broker architecture provides significant benefits for both development and operations teams:
+
+1. Developers can connect their applications and containers to the backing services they need. The operation is the same, regardless of the backing service.
+2. Operators no longer have to manually create and delegate access to services. Instead, they configure a marketplace of services and service plans. From there, developers can self-serve, reducing the administrative costs many enterprises face today.
+
+## What is Open Service Broker API?
+
+Each service broker that's built to the Open Service Broker API specification has the same intuitive set of lifecycle commands. These commands provide useful benefits for the service broker:
+
+**Fetching the catalog of backing services that a service broker offers**:
+
+The catalog describes all of the services that can be created through a service broker, and each service is made up of plans. Plans typically represent the costs and benefits for a given variant of the service. Many services use plans related to the size the product, for example small, medium, and large.
+
+**Provisioning new service instances**:
+
+A service instance is a created instance of a service and plan as described in the service broker’s catalog.
+
+**Connecting and disconnecting applications and containers from those service instances**:
+
+When a service instance is created, you want your application or container to start communicating with that instance. From a service broker’s perspective, this is called a service binding.
+
+**Deprovisioning service instances**:
+
+This action deletes all the resources that are created upon the initial creation of the service instance. 
+
+## **Building your Service broker**
+
+When you onboard your service to IBM Cloud®, you must build one or more service brokers to manage the lifecycle of your service.
+Use this solution to build your broker service with the help of an automated script.
+
 open-service-broker-automation tool automates the process of configuring and deploying a broker service that has your required specifications.
+
+## What does the Script do?
+_The script automates the process of configuring and deploying a broker service that has your required specifications.
+
+The following illustration shows where the script fits in the process of onboarding a service in IBM cloud and the actions that are performed by the script for creating a broker service.
+
+![Onboarding a service in Partner Center using Accelerated Partner Service Onboarding script](https://raw.githubusercontent.com/IBM/open-service-broker-automation/main/images/osb_workflow.svg)
 
 **Pre-requisites:**
 
