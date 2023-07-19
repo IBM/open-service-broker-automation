@@ -19,6 +19,8 @@ servers:
 tags:
   - name: v-2-api-controller
     description: V 2 Api Controller
+security:
+  - basicAuth: []
 paths:
   /v2/catalog:
     get:
@@ -1580,3 +1582,7 @@ components:
           $ref: "#/components/schemas/ServiceInstancePreviousValues"
         service_id:
           type: string
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
